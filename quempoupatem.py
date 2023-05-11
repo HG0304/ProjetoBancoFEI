@@ -5,8 +5,9 @@ clientes = []
 # função para buscar clientes
 def BuscaCliente(cpf):
     for i in range(len(clientes)):
-        if cpf == clientes[i][2]:
+        if cpf == clientes[i][1]:
             return clientes[i]
+    return False
 
 def BuscaClienteSenha(cpf, senha):
     for i in range(len(clientes)):
@@ -27,9 +28,24 @@ def NovoCliente():
 
     cliente.append(input("Insira seu nome: "))                       #cadastra o nome
     cliente.append(int(input("Insira seu cpf: ")))                   #cadastra o cpf no formato de um inteiro
-    cliente.append(input("Qual conta você quer criar? "))            #cadastra o tipo de conta
-    cliente.append(int(input("Insira o valor inicial da conta: ")))  #cadastra o valor inicial da conta
-    cliente.append(input("Crie sua senha: "))                        #cadastra a senha do cliente
+    print('Qual conta você quer criar? ')
+    print('Digite 1 para comum ou 2 para a conta plus, caso vc queira saber mais sobre os nossos planos, digite 0') 
+    TipoDeConta = int(input())                                       #cadastra o tipo de conta
+
+    # ao digitar 0 cliente o recebe mais imformacoes sobre os tipos de contas disponiveis, se não, o codigo pula a condição e adiciona diretamente a lista do cliente
+    if TipoDeConta == 0:        
+        print(
+            """            - COMUM:
+                - Cobra taxa de 5%% a cada débito realizado
+                - Permite um saldo negativo de até (R$ 1.000,00)
+            
+            - PLUS
+                - cobra taxa de 3%% a cada débito realizado
+                - Permite um saldo negativo de até (R$ 5.000,00)""")
+        TipoDeConta = int(input('Digite 1 para comum ou 2 para a conta plus'))      # pergunta novamente qual o tipo de conta vai ser criada
+    cliente.append(TipoDeConta)                                                     # adiciona o valor referente aos tipos de conta à lista do cliente
+    cliente.append(int(input("Insira o valor inicial da conta: ")))                 # cadastra o valor inicial da conta
+    cliente.append(input("Crie sua senha: "))                                       # cadastra a senha do cliente
 
     clientes.append(cliente)  # a lista com esse cliente é inserida dentro da lista geral
     
@@ -60,52 +76,118 @@ def ApagaCliente():
         print("Tente novamente\n")
 
 
-#lista todos os clientes
+# função para listar todos os clientes
 def ListarClientes():
+    print()
+    print("_______________________________________________________________________\n")
     print(clientes)
 
-# funcao para depositas na conta
+# funcao para debitos da conta
 def Debito():
-    print("Dados solicitados")
+    print()
+    print("_______________________________________________________________________\n")
+    print("Para debitar da sua conta insira os dados solicitados")
 
-    while True:
-        cpf = int(input("Digite seu cpf: "))
-        senha = input("Digite sua senha: ")
-        valor = int(input("Digite o valor a ser debitado: "))
+    while True:                                                 # laço while para caso o cliente erre os dados
+        cpf = int(input("Digite seu cpf: "))                    # solicita o cpf
+        senha = input("Digite sua senha: ")                     # solicita a senha
+        valor = int(input("Digite o valor a ser debitado: "))   # solicita o valor a ser debitado
 
-        print(BuscaClienteSenha(cpf, senha))
+        cliente = BuscaClienteSenha(cpf, senha)                 # atribui a lista com os dados do cliente à variavel cliente
 
-        if BuscaClienteSenha(cpf, senha) == False:
+        if BuscaClienteSenha(cpf, senha) == False:              # caso os dados fornecido não sejam encontrados o programa retorna uma menssagem de erro
             print("Dados invalidos!")
         else:
             break
         
-    if BuscaClienteSenha(cpf, senha) != False:
-        if BuscaCliente(cpf)[2] == 1:   # comum
-            BuscaCliente(cpf)[3] += (valor - 0.05 * valor) 
-        elif BuscaCliente(cpf)[2] == 2:   # plus
-            BuscaCliente(cpf)[3] += (valor - 0.03 * valor)
+    temp = cliente[3]       # variavel temporaria para armazenar a valor da conta antes de ser efetuado o débito para caso do débito não poder ser realizado
+        
+    if cliente[2] == 1:                           # contas comuns
+        cliente[3] += (-1.05 * valor)             # debita o valor mais 5% de taxa
+        if cliente[3] < -1000:                    # restrição do valor minimo na conta
+            print('esta opereção não pode ser concluida, pois você não tem saldo suficiente')
+            cliente[3] = temp                     # retorna o valor original da conta
     
+    elif cliente[2] == 2:                         # contas plus
+        cliente[3] += (-1.03 * valor)             # debita o valor mais 3% de taxa
+        if cliente[3] < -5000:                    # restrição do valor minimo na conta
+            print('esta opereção não pode ser concluida, pois você não tem saldo suficiente')
+            cliente[3] = temp                     # retorna o valor original da conta
 
+# função para depositos
 def Deposito():
-    print("Dados solicitados")
-    cpf = input("Insira seu cpf: ")
-    valor = int(input("Digite o valor do deposito: "))
-    print(cpf, valor)
+    print()
+    print("_______________________________________________________________________\n")
+    print('Para depositar dinheiro na sua conta insira os dados solicitados')
+
+    while True:                                                   # laço while para caso o cliente erre os dados
+        cpf = int(input("Digite seu cpf: "))                      # solicita o cpf da conta
+        valor = int(input("Digite o valor a ser depositado: "))   # solicita o valor a ser depositado
+
+        cliente = BuscaCliente(cpf)                 # atribui a lista com os dados do cliente à variavel cliente
+
+        if BuscaCliente(cpf) == False:              # caso os dados fornecido não sejam encontrados o programa retorna uma menssagem de erro
+            print("Dados invalidos!")
+        else:
+            break
+
+    cliente[3] += valor                             # adiciona o valor do depósito à conta
+    print('Deposito realizado com sucesso')
 
 def Extrato():
+    print()
+    print("_______________________________________________________________________\n")
     print("Dados solicitados")
     cpf = input("Insira seu cpf: ")
     senha = input("Digite sua senha: ")
     print(cpf, senha)
 
 def Trans_contas():
-    print("Dados solicitados")
-    cpf = input("Insira seu cpf: ")
-    senha = input("Digite sua senha: ")
-    cpfdestino = input("Insira seu cpf da conta que você deseja transferir: ")
-    valor = int(input("Digite o valor da transferência: "))
-    print(cpf, senha, valor, cpfdestino)
+    print()
+    print("_______________________________________________________________________\n")
+    print('Para transferir seu dinheiro para outra conta insira os dados solicitados')
+    while True:                                                     # laço while para caso o cliente erre os dados
+        cpf = int(input("Digite seu cpf: "))                        # solicita o cpf da conta de origem
+        senha = input("Digite sua senha: ")                         # solicita a senha da conta de origem
+        valor = int(input("Digite o valor a ser transferido: "))    # solicita o valor a ser transferido
+    
+        cliente1 = BuscaClienteSenha(cpf, senha)                 # atribui a lista com os dados do cliente original à variavel cliente1
+
+        if BuscaClienteSenha(cpf, senha) == False:              # caso os dados fornecido não sejam encontrados o programa retorna uma menssagem de erro
+            print("Dados invalidos!")
+        else:
+            break
+    
+    while True:                               # laço while para caso o cliente erre os dados
+        cpf = int(input("Agora digite o cpf da conta para a qual deseja realizar a transferencia: "))   # solicita o cpf da conta que receberá o dinheiro
+
+        cliente2 = BuscaCliente(cpf)          # atribui a lista com os dados do cliente que receberá o dinheiro  à variavel cliente2
+
+        if BuscaCliente(cpf) == False:        # caso os dados fornecido não sejam encontrados o programa retorna uma menssagem de erro
+            print("Dados invalidos!")
+        else:
+            break
+
+    temp1 = cliente1[3]       # variavel temporaria para armazenar a valor da conta 1 antes de ser efetuada a transferencia para caso a operação não possa ser realizada
+    temp2 = cliente2[3]       # variavel temporaria para armazenar a valor da conta 2 antes de ser efetuada a transferencia para caso a operação não possa ser realizada
+
+    if cliente1[2] == 1:                    # conta 1 comun
+        cliente1[3] += (-valor)             # debita o valor da tranferencia da conta 1
+        cliente2[3] += valor                # adiciona o valor da tranferencia à conta 2
+        if cliente1[3] < -1000:             # restrição do valor minimo na conta
+            print('esta opereção não pode ser concluida pois você não tem saldo suficiente')
+            cliente1[3] = temp1             # retorna o valor original da conta 1
+            cliente2[3] = temp2             # retorna o valor original da conta 2
+
+    elif cliente1[2] == 2:                  # conta 1 plus
+        cliente1[3] += (-valor)             # debita o valor da tranferencia da conta 1
+        cliente2[3] += valor                # adiciona o valor da tranferencia à conta 2
+        if cliente1[3] < -5000:             # restrição do valor minimo na conta
+            print('Esta opereção não pode ser concluida pois você não tem saldo suficiente')
+            cliente1[3] = temp1             # retorna o valor original da conta 1
+            cliente2[3] = temp2             # retorna o valor original da conta 2
+
+
 
 def Investimento():
     cpf = input("Insira seu cpf: ")
