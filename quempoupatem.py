@@ -1,6 +1,10 @@
+from datetime import datetime
 
 # cria a lista com todos os clientes cadastrados
 clientes = []
+
+# cria uma lista que contem todo o histórico de transaçoes de um cliente
+historico_extrato = []
 
 # função para buscar clientes
 def BuscaCliente(cpf):
@@ -9,6 +13,7 @@ def BuscaCliente(cpf):
             return clientes[i]
     return False
 
+# função para buscar clientes e validar a senha
 def BuscaClienteSenha(cpf, senha):
     for i in range(len(clientes)):
         if cpf == clientes[i][1] and senha == clientes[i][4]:
@@ -49,9 +54,13 @@ def NovoCliente():
 
     clientes.append(cliente)  # a lista com esse cliente é inserida dentro da lista geral
     
+    # cria uma lista dentro da lista de extratos com as movimentaçoes relacionadas a 1 cpf
+    extrato_cpf = []
+
+    extrato_cpf.append(cliente[1])                                                  # adiciona o cpf da pessoa à lista de extratos vinculado ao cpf dela
+    historico_extrato.append(extrato_cpf)                                           # adiciona a lista vinculado ao cpf dentro da lista de extratos gerais
 
 # função que apaga clientes
-
 def ApagaCliente():
     print()
     print("_______________________________________________________________________\n")
@@ -74,7 +83,6 @@ def ApagaCliente():
         print()
         print("Cliente não encontrado\n")
         print("Tente novamente\n")
-
 
 # função para listar todos os clientes
 def ListarClientes():
@@ -100,19 +108,33 @@ def Debito():
         else:
             break
         
-    temp = cliente[3]       # variavel temporaria para armazenar a valor da conta antes de ser efetuado o débito para caso do débito não poder ser realizado
+    temp = cliente[3]                             # variavel temporaria para armazenar a valor da conta antes de ser efetuado o débito para caso do débito não poder ser realizado
         
     if cliente[2] == 1:                           # contas comuns
         cliente[3] += (-1.05 * valor)             # debita o valor mais 5% de taxa
+        taxa = 0.05 * valor
         if cliente[3] < -1000:                    # restrição do valor minimo na conta
             print('esta opereção não pode ser concluida, pois você não tem saldo suficiente')
             cliente[3] = temp                     # retorna o valor original da conta
     
     elif cliente[2] == 2:                         # contas plus
         cliente[3] += (-1.03 * valor)             # debita o valor mais 3% de taxa
+        taxa = 0.03 * valor
         if cliente[3] < -5000:                    # restrição do valor minimo na conta
             print('esta opereção não pode ser concluida, pois você não tem saldo suficiente')
             cliente[3] = temp                     # retorna o valor original da conta
+
+    # incluir a operacao à lista de extratos
+    data = datetime.now()                         # cria a variavel que armazena data e hora
+
+    for i in range(len(historico_extrato)):       # o laço percorre a lista com os extratos de todos os clientes e busca o cpf correto
+        if cpf == historico_extrato[i][0]:
+            historico_extrato[i].append("debito")
+            historico_extrato[i].append(data)     # insere a data da operaçao à lista de registros do cliente
+            historico_extrato[i].append(-valor)   # insere o valor do débito à lista de registros do cliente
+            historico_extrato[i].append(taxa)     # insere o valor da taxa à lista de registros do cliente
+
+    print(historico_extrato)
 
 # função para depositos
 def Deposito():
@@ -134,6 +156,19 @@ def Deposito():
     cliente[3] += valor                             # adiciona o valor do depósito à conta
     print('Deposito realizado com sucesso')
 
+    # incluir a operacao à lista de extratos
+    data = datetime.now()                         # cria a variavel que armazena data e hora
+
+    for i in range(len(historico_extrato)):       # o laço percorre a lista com os extratos de todos os clientes e busca o cpf correto
+        if cpf == historico_extrato[i][0]:
+            historico_extrato[i].append("deposito")
+            historico_extrato[i].append(data)     # insere a data da operaçao à lista de registros do cliente
+            historico_extrato[i].append(valor)    # insere o valor do deposito à lista de registros do cliente
+
+    print(historico_extrato)
+
+
+# função para os extratos
 def Extrato():
     print()
     print("_______________________________________________________________________\n")
@@ -142,6 +177,7 @@ def Extrato():
     senha = input("Digite sua senha: ")
     print(cpf, senha)
 
+# função para realizar as transaçoes entre as contas
 def Trans_contas():
     print()
     print("_______________________________________________________________________\n")
@@ -151,31 +187,31 @@ def Trans_contas():
         senha = input("Digite sua senha: ")                         # solicita a senha da conta de origem
         valor = int(input("Digite o valor a ser transferido: "))    # solicita o valor a ser transferido
     
-        cliente1 = BuscaClienteSenha(cpf, senha)                 # atribui a lista com os dados do cliente original à variavel cliente1
+        cliente1 = BuscaClienteSenha(cpf, senha)                    # atribui a lista com os dados do cliente original à variavel cliente1
 
-        if BuscaClienteSenha(cpf, senha) == False:              # caso os dados fornecido não sejam encontrados o programa retorna uma menssagem de erro
+        if BuscaClienteSenha(cpf, senha) == False:                  # caso os dados fornecido não sejam encontrados o programa retorna uma menssagem de erro
             print("Dados invalidos!")
         else:
             break
     
-    while True:                               # laço while para caso o cliente erre os dados
-        cpf = int(input("Agora digite o cpf da conta para a qual deseja realizar a transferencia: "))   # solicita o cpf da conta que receberá o dinheiro
+    while True:                                       # laço while para caso o cliente erre os dados
+        cpf_destino = int(input("Agora digite o cpf da conta para a qual deseja realizar a transferencia: "))   # solicita o cpf da conta que receberá o dinheiro
 
-        cliente2 = BuscaCliente(cpf)          # atribui a lista com os dados do cliente que receberá o dinheiro  à variavel cliente2
+        cliente2 = BuscaCliente(cpf_destino)          # atribui a lista com os dados do cliente que receberá o dinheiro  à variavel cliente2
 
-        if BuscaCliente(cpf) == False:        # caso os dados fornecido não sejam encontrados o programa retorna uma menssagem de erro
+        if BuscaCliente(cpf_destino) == False:        # caso os dados fornecido não sejam encontrados o programa retorna uma menssagem de erro
             print("Dados invalidos!")
         else:
             break
 
-    temp1 = cliente1[3]       # variavel temporaria para armazenar a valor da conta 1 antes de ser efetuada a transferencia para caso a operação não possa ser realizada
-    temp2 = cliente2[3]       # variavel temporaria para armazenar a valor da conta 2 antes de ser efetuada a transferencia para caso a operação não possa ser realizada
+    temp1 = cliente1[3]       # variavel temporaria para armazenar o valor da conta 1 antes de ser efetuada a transferencia para caso a operação não possa ser realizada
+    temp2 = cliente2[3]       # variavel temporaria para armazenar o valor da conta 2 antes de ser efetuada a transferencia para caso a operação não possa ser realizada
 
-    if cliente1[2] == 1:                    # conta 1 comun
+    if cliente1[2] == 1:                    # conta 1 comum
         cliente1[3] += (-valor)             # debita o valor da tranferencia da conta 1
         cliente2[3] += valor                # adiciona o valor da tranferencia à conta 2
         if cliente1[3] < -1000:             # restrição do valor minimo na conta
-            print('esta opereção não pode ser concluida pois você não tem saldo suficiente')
+            print('Esta opereção não pode ser concluida pois você não tem saldo suficiente')
             cliente1[3] = temp1             # retorna o valor original da conta 1
             cliente2[3] = temp2             # retorna o valor original da conta 2
 
@@ -187,7 +223,22 @@ def Trans_contas():
             cliente1[3] = temp1             # retorna o valor original da conta 1
             cliente2[3] = temp2             # retorna o valor original da conta 2
 
+    # incluir a operacao à lista de extratos
+    data = datetime.now()                         # cria a variavel que armazena data e hora
 
+    for i in range(len(historico_extrato)):       # o laço percorre a lista com os extratos de todos os clientes e busca o cpf correto
+        if cpf == historico_extrato[i][0]:
+            historico_extrato[i].append("tranferencia")
+            historico_extrato[i].append(data)     # insere a data da operaçao à lista de registros do cliente
+            historico_extrato[i].append(-valor)   # insere o valor tranferido à lista de registros do cliente
+
+    for i in range(len(historico_extrato)):       # o laço percorre a lista com os extratos de todos os clientes e busca o cpf correto
+        if cpf_destino == historico_extrato[i][0]:
+            historico_extrato[i].append("transferencia")
+            historico_extrato[i].append(data)     # insere a data da operaçao à lista de registros do cliente
+            historico_extrato[i].append(+valor)   # insere o valor recebido à lista de registros do cliente
+
+    print(historico_extrato)
 
 def Investimento():
     cpf = input("Insira seu cpf: ")
