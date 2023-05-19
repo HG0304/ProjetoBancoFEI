@@ -1,5 +1,43 @@
 from datetime import datetime # importa a função necessaria para registrar datas e horas
 
+# arquivos
+def salvarcliente():
+    arquivo = open('clientes.txt', 'w', encoding='utf-8')
+    for i in clientes:
+        arquivo.write(str(i) + "\n")
+    arquivo.close()
+
+def salvarextrato():
+    arquivo = open('clientes.txt', 'w', encoding='utf-8')
+    for i in clientes:
+        arquivo.write(str(i) + "\n")
+    arquivo.close()
+
+def lerCliente():
+    arquivo = open('clientes.txt', 'r', encoding='utf-8')
+    dados = arquivo.read()
+    dados = dados.replace('[', '')
+    dados = dados.replace(']', '')
+    dados = dados.split('\n')
+
+    for x in dados:
+        cliente = x.split(',')
+        print(cliente[0])
+    arquivo.close()
+
+def lerExtrato():
+    arquivo = open('historico_extrato.txt', 'r', encoding='utf-8')
+    dados = arquivo.read()
+    dados = dados.replace('[', '')
+    dados = dados.replace(']', '')
+    dados = dados.split('\n')
+
+    for x in dados:
+        if len(x) <= 1:
+            continue
+        cliente = x.split(',')
+        print(cliente[0])
+    arquivo.close()
 # cria a lista com todos os clientes cadastrados
 clientes = []
 
@@ -31,7 +69,7 @@ def NovoCliente():
     # o cliente insere os dados diretamente dentro da lista
 
     cliente.append(input("Insira seu nome: "))                       #cadastra o nome
-    cliente.append(int(input("Insira seu cpf: ")))                   #cadastra o cpf no formato de um inteiro
+    cliente.append(int(input("Insira seu cpf (somente números): "))) #cadastra o cpf no formato de um inteiro
     print('Qual conta você quer criar? ')
     print('Digite 1 para comum ou 2 para a conta plus, caso vc queira saber mais sobre os nossos planos, digite 0') 
     TipoDeConta = int(input())                                       #cadastra o tipo de conta
@@ -72,6 +110,8 @@ def NovoCliente():
             historico_extrato[i].append(0)                  # insere o valor da taxa à lista de registros do cliente
             historico_extrato[i].append(saldo)              # insere o saldo à lista de registros do cliente
 
+    salvarcliente()
+
 # função que apaga clientes
 def ApagaCliente():
     print()
@@ -80,7 +120,7 @@ def ApagaCliente():
     # laço while para caso o cliente erre na digitação do cpf
 
     while True:
-        cpf = int(input("digite o cpf da conta que você quer apagar ou digite 0 para voltar: "))    # solicita o cpf da conta
+        cpf = int(input("Digite o cpf (somente números) da conta que você quer apagar ou digite 0 para voltar: "))  # solicita o cpf da conta
 
         if cpf == 0:  # se  o for igual a 0 interrompe a operação retornando para o menu
             break
@@ -109,7 +149,7 @@ def Debito():
     print("Para debitar da sua conta insira os dados solicitados")
 
     while True:                                                 # laço while para caso o cliente erre os dados
-        cpf = int(input("Digite seu cpf: "))                    # solicita o cpf
+        cpf = int(input("Digite seu cpf (somente números): "))  # solicita o cpf
         senha = input("Digite sua senha: ")                     # solicita a senha
         valor = int(input("Digite o valor a ser debitado: "))   # solicita o valor a ser debitado
 
@@ -142,7 +182,7 @@ def Debito():
     for i in range(len(historico_extrato)):                     # o laço percorre a lista com os extratos de todos os clientes e busca o cpf correto
         if cpf == historico_extrato[i][0]:
             historico_extrato[i].append(data)                   # insere a data da operaçao à lista de registros do cliente
-            historico_extrato[i].append("debito")
+            historico_extrato[i].append("Debito       ")        # insere o nome da operaçao à lista de registros do cliente
             historico_extrato[i].append(-valor)                 # insere o valor do débito à lista de registros do cliente
             historico_extrato[i].append(taxa)                   # insere o valor da taxa à lista de registros do cliente
             historico_extrato[i].append(saldo)                  # insere o saldo à lista de registros do cliente
@@ -154,7 +194,7 @@ def Deposito():
     print('Para depositar dinheiro na sua conta insira os dados solicitados')
 
     while True:                                                   # laço while para caso o cliente erre os dados
-        cpf = int(input("Digite seu cpf: "))                      # solicita o cpf da conta
+        cpf = int(input("Digite seu cpf (somente números): "))                      # solicita o cpf da conta
         valor = int(input("Digite o valor a ser depositado: "))   # solicita o valor a ser depositado
 
         cliente = BuscaCliente(cpf)                 # atribui a lista com os dados do cliente à variavel cliente
@@ -173,7 +213,7 @@ def Deposito():
     for i in range(len(historico_extrato)):                     # o laço percorre a lista com os extratos de todos os clientes e busca o cpf correto
         if cpf == historico_extrato[i][0]:
             historico_extrato[i].append(data)                   # insere a data da operaçao à lista de registros do cliente
-            historico_extrato[i].append("deposito")             # insere o nome da operaçao à lista de registros do cliente
+            historico_extrato[i].append("Deposito     ")        # insere o nome da operaçao à lista de registros do cliente
             historico_extrato[i].append(valor)                  # insere o valor do deposito à lista de registros do cliente
             historico_extrato[i].append(0)                      # insere o valor da taxa à lista de registros do cliente
             historico_extrato[i].append(saldo)                  # insere o saldo à lista de registros do cliente
@@ -185,7 +225,7 @@ def Extrato():
     print("Prencha os dados solicitados")
 
     while True:                                                 # laço while para caso o cliente erre os dados
-        cpf = int(input("Digite seu cpf: "))                    # solicita o cpf
+        cpf = int(input("Digite seu cpf (somente números): "))                    # solicita o cpf
         senha = input("Digite sua senha: ")                     # solicita a senha
 
         cliente = BuscaClienteSenha(cpf, senha)                 # atribui a lista com os dados do cliente à variavel cliente
@@ -207,11 +247,10 @@ def Extrato():
     else:
         print('Conta: Plus')                                                # imprime o tipo de conta do cliente
     for i in range(len(historico_extrato)):                                 # laço para percorrer a liste geral de extratos
-        for n in historico_extrato[i]:                                      # laço para percorrer cada lista dentro da lista geral
-            if n == cliente[1]:                                             # caso algum valor seja igual ao cpf do cliente
-                for x in range(0, len(historico_extrato[i]) - 1, 5):        # laço para a impressão dos valores seguindo um padrão de repetição de 5 em 5
-                    # imprime os dados
-                    print(f'Data: {historico_extrato[i][1 + x]} | Operação: {historico_extrato[i][2 + x]} | Valor: {historico_extrato[i][3 + x]} | Tarifa: {historico_extrato[i][4 + x]} | Saldo: {historico_extrato[i][5 + x]}')
+        if cliente[1] == historico_extrato[i][0]:                           # condição para que o programa encontre a lista correte de acordo com o cpf
+            for x in range(0, len(historico_extrato[i]) - 1, 5):            # laço para a impressão dos valores seguindo um padrão de repetição de 5 em 5
+                # imprime os dados
+                print(f'Data: {historico_extrato[i][1 + x]} | Operação: {historico_extrato[i][2 + x]} | Valor: {historico_extrato[i][3 + x]} | Tarifa: {historico_extrato[i][4 + x]} | Saldo: {historico_extrato[i][5 + x]}')
                     
 # função para realizar as transaçoes entre as contas
 def Trans_contas():
@@ -219,7 +258,7 @@ def Trans_contas():
     print("_______________________________________________________________________\n")
     print('Para transferir seu dinheiro para outra conta insira os dados solicitados')
     while True:                                                     # laço while para caso o cliente erre os dados
-        cpf = int(input("Digite seu cpf: "))                        # solicita o cpf da conta de origem
+        cpf = int(input("Digite seu cpf (somente números): "))                        # solicita o cpf da conta de origem
         senha = input("Digite sua senha: ")                         # solicita a senha da conta de origem
         valor = int(input("Digite o valor a ser transferido: "))    # solicita o valor a ser transferido
     
@@ -231,7 +270,7 @@ def Trans_contas():
             break
     
     while True:                                       # laço while para caso o cliente erre os dados
-        cpf_destino = int(input("Agora digite o cpf da conta para a qual deseja realizar a transferencia: "))   # solicita o cpf da conta que receberá o dinheiro
+        cpf_destino = int(input("Agora digite o cpf (somente números) da conta para a qual deseja realizar a transferencia: "))   # solicita o cpf da conta que receberá o dinheiro
 
         cliente2 = BuscaCliente(cpf_destino)          # atribui a lista com os dados do cliente que receberá o dinheiro  à variavel cliente2
 
@@ -267,7 +306,7 @@ def Trans_contas():
     for i in range(len(historico_extrato)):                     # o laço percorre a lista com os extratos de todos os clientes e busca o cpf correto
         if cpf == historico_extrato[i][0]:
             historico_extrato[i].append(data)                   # insere a data da operaçao à lista de registros do cliente
-            historico_extrato[i].append("tranferencia")         # insere o nome da operaçao à lista de registros do cliente
+            historico_extrato[i].append("Tranferência ")         # insere o nome da operaçao à lista de registros do cliente
             historico_extrato[i].append(-valor)                 # insere o valor tranferido à lista de registros do cliente
             historico_extrato[i].append(0)                      # insere o valor da tarifa à lista de registros do cliente
             historico_extrato[i].append(saldo1)                 # insere o saldo à lista de registros do cliente
@@ -275,7 +314,7 @@ def Trans_contas():
     for i in range(len(historico_extrato)):                     # o laço percorre a lista com os extratos de todos os clientes e busca o cpf correto
         if cpf_destino == historico_extrato[i][0]:
             historico_extrato[i].append(data)                   # insere a data da operaçao à lista de registros do cliente
-            historico_extrato[i].append("transferencia")        # insere o nome da operaçao à lista de registros do cliente
+            historico_extrato[i].append("Tranferência ")        # insere o nome da operaçao à lista de registros do cliente
             historico_extrato[i].append(+valor)                 # insere o valor recebido à lista de registros do cliente
             historico_extrato[i].append(0)                      # insere o valor da tarifa à lista de registros do cliente
             historico_extrato[i].append(saldo2)                 # insere o saldo à lista de registros do cliente
@@ -289,7 +328,7 @@ def Recarga():
     print('Lembando que as recargas possuem as mesmas taxas de cobranças que os débitos')
     
     while True:                                                     # laço while para caso o cliente erre os dados
-        cpf = int(input("Digite seu cpf: "))                        # solicita o cpf do cliente
+        cpf = int(input("Digite seu cpf (somente números): "))                        # solicita o cpf do cliente
         senha = input("Digite sua senha: ")                         # solicita a senha
         valor = int(input("Digite o valor da recarga: "))           # solicita o valor da recarga
         cliente = BuscaClienteSenha(cpf, senha)                     # atribui a lista com os dados do cliente à variavel cliente
@@ -321,12 +360,12 @@ def Recarga():
     for i in range(len(historico_extrato)):                     # o laço percorre a lista com os extratos de todos os clientes e busca o cpf correto
         if cpf == historico_extrato[i][0]:
             historico_extrato[i].append(data)                   # insere a data da operaçao à lista de registros do cliente
-            historico_extrato[i].append("recarga")
+            historico_extrato[i].append("Recarga      ")
             historico_extrato[i].append(-valor)                 # insere o valor do débito à lista de registros do cliente
             historico_extrato[i].append(taxa)                   # insere o valor da taxa à lista de registros do cliente
             historico_extrato[i].append(saldo)                  # insere o saldo à lista de registros do cliente
 
-
+# função do menu
 def menu(menu):
     if menu == 1:
         NovoCliente()
@@ -344,11 +383,11 @@ def menu(menu):
         Trans_contas()
     elif menu == 8:
         Recarga()
-    
 
+# bloco do menu
 while True:
     print("_______________________________________________________________________\n")
-    print('___________________Bem vindo ao bando do Hugo__________________________')
+    print('_____________________Bem vindo ao banco Hugo___________________________')
     print("1 - Novo cliente")
     print("2 - Apaga cliente")
     print("3 - Listar clientes")
@@ -356,12 +395,12 @@ while True:
     print("5 - Depósito")
     print("6 - Extrato")
     print("7 - Transferência entre contas")
-    print("8 - Operação livre")
+    print("8 - Recarga de telefone")
     print("9 - Sair")
 
-    op = int(input("insira qual operação você deseja realizar: "))
+    op = int(input("insira qual operação você deseja realizar: ")) # captura o valor digitado pelo usuario e armazena na variavel op
 
-    if op == 9:
+    if op == 9:                                                    # caso op = 9, o codigo é interrompido
         break
-    
-    menu(op)
+    lerCliente()
+    menu(op)                                                       # a variavel op chama as outras funções atraves da função menu
