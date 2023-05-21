@@ -1,43 +1,56 @@
 from datetime import datetime # importa a função necessaria para registrar datas e horas
 
-# arquivos
+# salva a lista 'clientes' no arquivo clientes.txt
 def salvarcliente():
     arquivo = open('clientes.txt', 'w', encoding='utf-8')
     for i in clientes:
         arquivo.write(str(i) + "\n")
     arquivo.close()
 
+# salva a lista 'historico_extrato' no arquivo historico_extrato.txt
 def salvarextrato():
-    arquivo = open('clientes.txt', 'w', encoding='utf-8')
-    for i in clientes:
+    arquivo = open('historico_extrato.txt', 'w', encoding='utf-8')
+    for i in historico_extrato:
         arquivo.write(str(i) + "\n")
     arquivo.close()
 
+# função para ler o arquivo clientes.txt
 def lerCliente():
-    arquivo = open('clientes.txt', 'r', encoding='utf-8')
-    dados = arquivo.read()
-    dados = dados.replace('[', '')
-    dados = dados.replace(']', '')
-    dados = dados.split('\n')
+    global clientes                                                                   # acessa a variável clientes globalmente
+    clientes = []
+    arquivo = open('clientes.txt', 'r', encoding='utf-8')                             # abre o arquivo
 
-    for x in dados:
-        cliente = x.split(',')
-        print(cliente[0])
-    arquivo.close()
+    for linha in arquivo.readlines():
+        linha = linha.strip()                                                         # remove espaços em branco e \n no início e fim da linha
+        linha = linha.replace("'", '')                                                # remove as aspas
+        temp = linha[1:-1].split(', ')                                                # remove os [] e divide a linha em listas nos pontos em que há vírgula e espaço
+
+        cliente = [temp[0], int(temp[1]), int(temp[2]), float(temp[3]), temp[4]]      # converte os valores apropriados para cada índice da sublista
+
+        clientes.append(cliente)                                                      # adiciona a lista cliente à lista clientes
+
+    arquivo.close()                                                                   # encerra a operação com o arquivo
 
 def lerExtrato():
-    arquivo = open('historico_extrato.txt', 'r', encoding='utf-8')
-    dados = arquivo.read()
-    dados = dados.replace('[', '')
-    dados = dados.replace(']', '')
-    dados = dados.split('\n')
+    global historico_extrato                                                          # acessa a variável historico_extrato globalmente
+    historico_extrato = []
+    arquivo = open('historico_extrato.txt', 'r', encoding='utf-8')                    # abre o arquivo
 
-    for x in dados:
-        if len(x) <= 1:
-            continue
-        cliente = x.split(',')
-        print(cliente[0])
-    arquivo.close()
+    for linha in arquivo.readlines():
+        linha = linha.strip()                                                         # remove espaços em branco e \n no início e fim da linha
+        linha = linha.replace("'", '')                                                # remove as aspas
+        temp = linha[1:-1].split(', ')                                                # remove os [] e divide a linha em listas nos pontos em que há vírgula e espaço
+
+        historico_extrato.append(temp)          # converte os valores apropriados para cada índice da sublista
+
+    for extrato_cpf in historico_extrato:
+        for i in range(len(extrato_cpf)):
+            if extrato_cpf[i].isdigit():
+                extrato_cpf[i] = int(extrato_cpf[i])
+    return historico_extrato                                         # adiciona a lista cliente à lista clientes
+
+    arquivo.close()                                                                   # encerra a operação com o arquivo
+    
 # cria a lista com todos os clientes cadastrados
 clientes = []
 
@@ -69,22 +82,41 @@ def NovoCliente():
     # o cliente insere os dados diretamente dentro da lista
 
     cliente.append(input("Insira seu nome: "))                       #cadastra o nome
-    cliente.append(int(input("Insira seu cpf (somente números): "))) #cadastra o cpf no formato de um inteiro
+    #cliente.append(int(input("Insira seu cpf (somente números): "))) #cadastra o cpf no formato de um inteiro
+
+    while True:
+        cpf = int(input("Insira seu cpf (somente números): "))
+        teste = BuscaCliente(cpf)
+        if teste == False and len(str(cpf)) == 11:
+            break
+        elif len(str(cpf)) != 11:
+            print('CPF invalido')
+        elif len(teste) > 0:
+            print('CPF de cliente já cadastrado, por favor digite outro CPF')
+
+    cliente.append(cpf)
+
     print('Qual conta você quer criar? ')
-    print('Digite 1 para comum ou 2 para a conta plus, caso vc queira saber mais sobre os nossos planos, digite 0') 
-    TipoDeConta = int(input())                                       #cadastra o tipo de conta
 
     # ao digitar 0 cliente o recebe mais imformacoes sobre os tipos de contas disponiveis, se não, o codigo pula a condição e adiciona diretamente a lista do cliente
-    if TipoDeConta == 0:        
-        print(
-            """            - COMUM:
-                - Cobra taxa de 5% a cada débito realizado
-                - Permite um saldo negativo de até (R$ 1.000,00)
-            
-            - PLUS
-                - cobra taxa de 3% a cada débito realizado
-                - Permite um saldo negativo de até (R$ 5.000,00)""")
-        TipoDeConta = int(input('Digite 1 para comum ou 2 para a conta plus'))      # pergunta novamente qual o tipo de conta vai ser criada
+    while True:
+        print('Digite 1 para comum ou 2 para a conta plus, caso você queira saber mais sobre os nossos planos, digite 0') 
+        TipoDeConta = int(input())                                                  #cadastra o tipo de conta
+        if TipoDeConta == 0:        
+            print(
+                """            - COMUM:
+                    - Cobra taxa de 5% a cada débito realizado
+                    - Permite um saldo negativo de até (R$ 1.000,00)
+                
+                - PLUS
+                    - cobra taxa de 3% a cada débito realizado
+                    - Permite um saldo negativo de até (R$ 5.000,00)""")
+            TipoDeConta = int(input('Digite 1 para comum ou 2 para a conta plus ')) # pergunta novamente qual o tipo de conta vai ser criada
+        elif TipoDeConta != 1 and TipoDeConta != 2:
+            print('Por favor digite um opção valida')
+        elif TipoDeConta == 1 or TipoDeConta == 2:
+            break
+        
     cliente.append(TipoDeConta)                                                     # adiciona o valor referente aos tipos de conta à lista do cliente
     cliente.append(int(input("Insira o valor inicial da conta: ")))                 # cadastra o valor inicial da conta
     cliente.append(input("Crie sua senha: "))                                       # cadastra a senha do cliente
@@ -111,6 +143,7 @@ def NovoCliente():
             historico_extrato[i].append(saldo)              # insere o saldo à lista de registros do cliente
 
     salvarcliente()
+    salvarextrato()
 
 # função que apaga clientes
 def ApagaCliente():
@@ -119,25 +152,31 @@ def ApagaCliente():
 
     # laço while para caso o cliente erre na digitação do cpf
 
-    while True:
-        cpf = int(input("Digite o cpf (somente números) da conta que você quer apagar ou digite 0 para voltar: "))  # solicita o cpf da conta
+    while True:                                                 # laço while para caso o cliente erre os dados                 
+        cpf = int(input("Digite seu cpf (somente números): "))  # solicita o cpf
 
-        if cpf == 0:  # se  o for igual a 0 interrompe a operação retornando para o menu
+        if BuscaCliente(cpf) == False:                          # caso os dados fornecido não sejam encontrados o programa retorna uma menssagem de erro
+            print("Dados invalidos!")
+        else:
             break
         
-        for i in range(len(clientes)):  # laço for percorre a lista com todos os clientes e procura aquele que tenha o cpf igual ao digitado
+    for i in range(len(clientes)):  # laço for percorre a lista com todos os clientes e procura aquele que tenha o cpf igual ao digitado
 
-            if  cpf == clientes[i][1]:  # cria a condição para deletar toda a lista com as informações do cliente com o cpf digitado
-                clientes.pop(i)
-                print()
-                print("Cliente deletado com sucesso")
-                return
-        print()
-        print("Cliente não encontrado\n")
-        print("Tente novamente\n")
+        if  cpf == clientes[i][1]:  # cria a condição para deletar toda a lista com as informações do cliente com o cpf digitado
+            clientes.pop(i)
+            print()
+            print("Cliente deletado com sucesso")
+
+    for j in range(len(historico_extrato)):                     # laço for percorre a historico_extrato com todos os extratos e procura aquele que tenha o cpf igual ao digitado
+        if cpf == historico_extrato[j][0]:
+            historico_extrato.pop(j)
+
+    salvarcliente()
+    salvarextrato()
 
 # função para listar todos os clientes
 def ListarClientes():
+    lerCliente()
     print()
     print("_______________________________________________________________________\n")
     print(clientes)
@@ -187,6 +226,9 @@ def Debito():
             historico_extrato[i].append(taxa)                   # insere o valor da taxa à lista de registros do cliente
             historico_extrato[i].append(saldo)                  # insere o saldo à lista de registros do cliente
 
+    salvarcliente()
+    salvarextrato()
+
 # função para depositos
 def Deposito():
     print()
@@ -217,6 +259,9 @@ def Deposito():
             historico_extrato[i].append(valor)                  # insere o valor do deposito à lista de registros do cliente
             historico_extrato[i].append(0)                      # insere o valor da taxa à lista de registros do cliente
             historico_extrato[i].append(saldo)                  # insere o saldo à lista de registros do cliente
+
+    salvarcliente()
+    salvarextrato()
 
 # função para os extratos
 def Extrato():
@@ -319,6 +364,9 @@ def Trans_contas():
             historico_extrato[i].append(0)                      # insere o valor da tarifa à lista de registros do cliente
             historico_extrato[i].append(saldo2)                 # insere o saldo à lista de registros do cliente
 
+    salvarcliente()
+    salvarextrato()
+
 # função de recarga de celular
 def Recarga():
     print()
@@ -365,6 +413,9 @@ def Recarga():
             historico_extrato[i].append(taxa)                   # insere o valor da taxa à lista de registros do cliente
             historico_extrato[i].append(saldo)                  # insere o saldo à lista de registros do cliente
 
+    salvarcliente()
+    salvarextrato()
+
 # função do menu
 def menu(menu):
     if menu == 1:
@@ -384,7 +435,7 @@ def menu(menu):
     elif menu == 8:
         Recarga()
 
-# bloco do menu
+# bloco do principal
 while True:
     print("_______________________________________________________________________\n")
     print('_____________________Bem vindo ao banco Hugo___________________________')
@@ -402,5 +453,8 @@ while True:
 
     if op == 9:                                                    # caso op = 9, o codigo é interrompido
         break
+
+    lerExtrato()
     lerCliente()
+
     menu(op)                                                       # a variavel op chama as outras funções atraves da função menu
