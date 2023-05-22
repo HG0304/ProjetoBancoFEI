@@ -160,9 +160,8 @@ def ApagaCliente():
         else:
             break
         
-    for i in range(len(clientes)):  # laço for percorre a lista com todos os clientes e procura aquele que tenha o cpf igual ao digitado
-
-        if  cpf == clientes[i][1]:  # cria a condição para deletar toda a lista com as informações do cliente com o cpf digitado
+    for i in range(len(clientes)):                              # laço for percorre a lista com todos os clientes e procura aquele que tenha o cpf igual ao digitado
+        if  cpf == clientes[i][1]:                              # cria a condição para deletar toda a lista com as informações do cliente com o cpf digitado
             clientes.pop(i)
             print()
             print("Cliente deletado com sucesso")
@@ -190,7 +189,7 @@ def Debito():
     while True:                                                 # laço while para caso o cliente erre os dados
         cpf = int(input("Digite seu cpf (somente números): "))  # solicita o cpf
         senha = input("Digite sua senha: ")                     # solicita a senha
-        valor = int(input("Digite o valor a ser debitado: "))   # solicita o valor a ser debitado
+        valor = float(input("Digite o valor a ser debitado: "))   # solicita o valor a ser debitado
 
         cliente = BuscaClienteSenha(cpf, senha)                 # atribui a lista com os dados do cliente à variavel cliente
 
@@ -218,6 +217,7 @@ def Debito():
     # incluir a operacao à lista de extratos
     data = datetime.now().strftime(("%d / %m / %Y %H:%M:%S"))   # cria a variavel que armazena data e hora
     saldo = cliente[3]
+    taxa = round(taxa, 2)
     for i in range(len(historico_extrato)):                     # o laço percorre a lista com os extratos de todos os clientes e busca o cpf correto
         if cpf == historico_extrato[i][0]:
             historico_extrato[i].append(data)                   # insere a data da operaçao à lista de registros do cliente
@@ -236,17 +236,17 @@ def Deposito():
     print('Para depositar dinheiro na sua conta insira os dados solicitados')
 
     while True:                                                   # laço while para caso o cliente erre os dados
-        cpf = int(input("Digite seu cpf (somente números): "))                      # solicita o cpf da conta
+        cpf = int(input("Digite seu cpf (somente números): "))    # solicita o cpf da conta
         valor = int(input("Digite o valor a ser depositado: "))   # solicita o valor a ser depositado
 
-        cliente = BuscaCliente(cpf)                 # atribui a lista com os dados do cliente à variavel cliente
+        cliente = BuscaCliente(cpf)                               # atribui a lista com os dados do cliente à variavel cliente
 
-        if BuscaCliente(cpf) == False:              # caso os dados fornecido não sejam encontrados o programa retorna uma menssagem de erro
+        if BuscaCliente(cpf) == False:                            # caso os dados fornecido não sejam encontrados o programa retorna uma menssagem de erro
             print("Dados invalidos!")
         else:
             break
 
-    cliente[3] += valor                             # adiciona o valor do depósito à conta
+    cliente[3] += valor                                          # adiciona o valor do depósito à conta
     print('Deposito realizado com sucesso')
 
     # incluir a operacao à lista de extratos
@@ -405,6 +405,7 @@ def Recarga():
     # incluir a operacao à lista de extratos
     data = datetime.now().strftime(("%d / %m / %Y %H:%M:%S"))   # cria a variavel que armazena data e hora
     saldo = cliente[3]
+    taxa = round(taxa, 2)
     for i in range(len(historico_extrato)):                     # o laço percorre a lista com os extratos de todos os clientes e busca o cpf correto
         if cpf == historico_extrato[i][0]:
             historico_extrato[i].append(data)                   # insere a data da operaçao à lista de registros do cliente
