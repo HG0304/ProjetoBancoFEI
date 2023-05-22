@@ -111,7 +111,9 @@ def NovoCliente():
                 - PLUS
                     - cobra taxa de 3% a cada débito realizado
                     - Permite um saldo negativo de até (R$ 5.000,00)""")
-            TipoDeConta = int(input('Digite 1 para comum ou 2 para a conta plus ')) # pergunta novamente qual o tipo de conta vai ser criada
+            TipoDeConta = int(input('Digite 1 para comum ou 2 para a conta plus: '))# pergunta novamente qual o tipo de conta vai ser criada
+            if TipoDeConta == 1 or TipoDeConta == 2:
+                break
         elif TipoDeConta != 1 and TipoDeConta != 2:
             print('Por favor digite um opção valida')
         elif TipoDeConta == 1 or TipoDeConta == 2:
@@ -147,8 +149,11 @@ def NovoCliente():
 
 # função que apaga clientes
 def ApagaCliente():
+    lerExtrato()
     print()
     print("_______________________________________________________________________\n")
+    print('É uma pena ver você partir')
+    print('para apagar a sua conta, digite os dados solicitados')
 
     # laço while para caso o cliente erre na digitação do cpf
 
@@ -178,7 +183,8 @@ def ListarClientes():
     lerCliente()
     print()
     print("_______________________________________________________________________\n")
-    print(clientes)
+    for i in range(len(clientes)):
+        print(clientes[i])
 
 # funcao para debitos da conta
 def Debito():
@@ -206,6 +212,8 @@ def Debito():
         if cliente[3] < -1000:                    # restrição do valor minimo na conta
             print('esta opereção não pode ser concluida, pois você não tem saldo suficiente')
             cliente[3] = temp                     # retorna o valor original da conta
+            taxa = 0
+            valor = 0
     
     elif cliente[2] == 2:                         # contas plus
         cliente[3] += (-1.03 * valor)             # debita o valor mais 3% de taxa
@@ -213,11 +221,13 @@ def Debito():
         if cliente[3] < -5000:                    # restrição do valor minimo na conta
             print('esta opereção não pode ser concluida, pois você não tem saldo suficiente')
             cliente[3] = temp                     # retorna o valor original da conta
+            taxa = 0
+            valor = 0
 
     # incluir a operacao à lista de extratos
     data = datetime.now().strftime(("%d / %m / %Y %H:%M:%S"))   # cria a variavel que armazena data e hora
     saldo = cliente[3]
-    taxa = round(taxa, 2)
+    taxa = round(taxa, 2)                                       # arredenda o valor da taxa para 2 casas decimais
     for i in range(len(historico_extrato)):                     # o laço percorre a lista com os extratos de todos os clientes e busca o cpf correto
         if cpf == historico_extrato[i][0]:
             historico_extrato[i].append(data)                   # insere a data da operaçao à lista de registros do cliente
@@ -330,18 +340,22 @@ def Trans_contas():
     if cliente1[2] == 1:                    # conta 1 comum
         cliente1[3] += (-valor)             # debita o valor da tranferencia da conta 1
         cliente2[3] += valor                # adiciona o valor da tranferencia à conta 2
+        print('Transferencia realizada com sucesso!')
         if cliente1[3] < -1000:             # restrição do valor minimo na conta
             print('Esta opereção não pode ser concluida pois você não tem saldo suficiente')
             cliente1[3] = temp1             # retorna o valor original da conta 1
             cliente2[3] = temp2             # retorna o valor original da conta 2
+            valor = 0
 
     elif cliente1[2] == 2:                  # conta 1 plus
         cliente1[3] += (-valor)             # debita o valor da tranferencia da conta 1
         cliente2[3] += valor                # adiciona o valor da tranferencia à conta 2
+        print('Transferencia realizada com sucesso!')
         if cliente1[3] < -5000:             # restrição do valor minimo na conta
             print('Esta opereção não pode ser concluida pois você não tem saldo suficiente')
             cliente1[3] = temp1             # retorna o valor original da conta 1
             cliente2[3] = temp2             # retorna o valor original da conta 2
+            valor = 0
 
     # incluir a operacao à lista de extratos
     data = datetime.now().strftime(("%d / %m / %Y %H:%M:%S"))   # cria a variavel que armazena data e hora
@@ -405,7 +419,7 @@ def Recarga():
     # incluir a operacao à lista de extratos
     data = datetime.now().strftime(("%d / %m / %Y %H:%M:%S"))   # cria a variavel que armazena data e hora
     saldo = cliente[3]
-    taxa = round(taxa, 2)
+    taxa = round(taxa, 2)                                       # arredenda o valor da taxa para 2 casas decimais
     for i in range(len(historico_extrato)):                     # o laço percorre a lista com os extratos de todos os clientes e busca o cpf correto
         if cpf == historico_extrato[i][0]:
             historico_extrato[i].append(data)                   # insere a data da operaçao à lista de registros do cliente
