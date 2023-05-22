@@ -81,13 +81,12 @@ def NovoCliente():
 
     # o cliente insere os dados diretamente dentro da lista
 
-    cliente.append(input("Insira seu nome: "))                       #cadastra o nome
-    #cliente.append(int(input("Insira seu cpf (somente números): "))) #cadastra o cpf no formato de um inteiro
+    cliente.append(input("Insira seu nome: "))                        #cadastra o nome
 
     while True:
-        cpf = int(input("Insira seu cpf (somente números): "))
-        teste = BuscaCliente(cpf)
-        if teste == False and len(str(cpf)) == 11:
+        cpf = int(input("Insira seu cpf (somente números): "))                     # cadastra o cpf no formato de um inteiro 
+        teste = BuscaCliente(cpf)                                                  # utilização da função BuscarCliente() para verificar se o cpf ja não foi previamente cadastrado
+        if teste == False and len(str(cpf)) == 11:                                 # condições necessarias para passar
             break
         elif len(str(cpf)) != 11:
             print('CPF invalido')
